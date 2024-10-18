@@ -1,8 +1,4 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.tokens import RefreshToken
-# from .models import Post, Like
-from django.contrib.auth import authenticate
 from .models import User, Post, Like
 
 
@@ -22,16 +18,17 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
     class Meta:
         model = Post
-        fields = ['id', 'title', 'description', 'content', 'creation_date', 'user', 'public', 'other_details']
+        fields = ['id', 'title', 'description', 'content', 'creation_date', 'public', 'user', 'other_details']
+        read_only_fields = ['id', 'creation_date', 'user']
 
+    def create(self, validated_data):
+        request = self.context.get('request')
+        validated_data['user'] = request.user
+        return super().create(validated_data)
+    
 
-class LikeSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
-    class Meta:
-        model = Like
-        fields = ['id', 'post', 'user', 'created_at', 'other_details']
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()

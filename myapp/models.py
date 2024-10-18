@@ -36,7 +36,7 @@ class Post(models.Model):
     other_details = models.TextField()
 
     def __str__(self):
-        return self.title
+        return f"{self.title} -> created by ->{self.user.email}"
 
 class Like(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
